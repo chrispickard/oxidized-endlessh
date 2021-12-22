@@ -9,10 +9,7 @@ edition = "2021"
 tokio = { version = "1.15.0", features = ["full"] }
 bytebuffer = "0.2.1"
 rand = "0.8.4"
-prometheus = "0.13.0"
 lazy_static = "1.4.0"
-prometheus-hyper = "0.1.3"
-config = {version = "0.11.0"}
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 structopt = "0.3"
