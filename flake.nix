@@ -15,15 +15,15 @@
           pname = "oxidized-endlessh";
           root = ./.;
         };
-        defaultPackage = packages.oxidized-endlessh;
+        # defaultPackage = packages.oxidized-endlessh;
 
         # `nix run`
-        apps.oxidized-endlessh =
-          utils.lib.mkApp { drv = packages.oxidized-endlessh; };
-        defaultApp = apps.oxidized-endlessh;
+        # apps.oxidized-endlessh =
+        #   utils.lib.mkApp { drv = packages.oxidized-endlessh; };
+        # defaultApp = apps.oxidized-endlessh;
 
         # `nix develop`
-        devShell =
-          pkgs.mkShell { nativeBuildInputs = with pkgs; [ rustc cargo ]; };
+        # devShell =
+        #   pkgs.mkShell { nativeBuildInputs = with pkgs; [ rustc cargo ]; };
       });
 }
