@@ -46,27 +46,32 @@ OXIDIZED_ENDLESSH_CONFIG
     };
     let buf_reader = BufReader::new(file);
     let conf: Config = serde_json::from_reader(buf_reader)?;
-    let mut runtime = tokio::runtime::Runtime::new().unwrap();
-    let listener = TcpListener::bind("127.0.0.1:8000").await?;
+    let mut listeners = Vec::new();
+    for addr in conf.addrs {
+        let listener = TcpListener::bind(addr).await?;
+        listeners.push(listener);
+    }
 
     loop {
-        let (mut socket, _) = listener.accept().await?;
-        let mut b = ByteBuffer::new();
-        tokio::spawn(async move {
-            // In a loop, read data from the socket and write the data back.
-            loop {
-                time::sleep(Duration::from_secs(10)).await;
-                b.clear();
-                let r: u64 = thread_rng().gen();
-                let response = format!("{:x}\r\n", r);
+        for listener in &listeners {
+            let (mut socket, _) = listener.accept().await?;
+            let mut b = ByteBuffer::new();
+            tokio::spawn(async move {
+                // In a loop, read data from the socket and write the data back.
+                loop {
+                    time::sleep(Duration::from_secs(10)).await;
+                    b.clear();
+                    let r: u64 = thread_rng().gen();
+                    let response = format!("{:x}\r\n", r);
 
-                b.write_bytes(response.as_bytes());
-                // Write the data back
-                if let Err(e) = socket.write_all(&b.to_bytes()).await {
-                    eprintln!("failed to write to socket; err = {:?}", e);
-                    return;
+                    b.write_bytes(response.as_bytes());
+                    // Write the data back
+                    if let Err(e) = socket.write_all(&b.to_bytes()).await {
+                        eprintln!("failed to write to socket; err = {:?}", e);
+                        return;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
