@@ -1,14 +1,17 @@
-{ lib, pkgs, config, inputs, ... }:
+{ config, lib, pkgs, ... }:
 with lib;
-let cfg = config.chrispickard.services.oxidized-endlessh;
+let
+  cfg = config.services.oxidized-endlessh;
+  settings = pkgs.writeTextDir "oxidized-endlessh/settings.json"
+    (builtins.toJSON (cfg.opts));
 in {
 
-  options.chrispickard.services.oxidized-endlessh = {
+  options.services.oxidized-endlessh = {
     enable = mkEnableOption "oxidized-endlessh service";
 
     opts = {
-      addresses = mkOption {
-        type = types.list;
+      addrs = mkOption {
+        type = with types; listOf string;
         default = [ "127.0.0.1:2222" ];
         example = [ "127.0.0.1:2222" ];
         description = "Host to listen on";
@@ -33,19 +36,14 @@ in {
     systemd.services.oxidized-endlessh = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
-      description = "Startmatrix-hook";
+      description = "";
       serviceConfig = {
-
         User = "oxidized-endlessh";
-        ExecStart = "${
-            inputs.oxidized-endlessh.packages."${config.nixpkgs.system}".oxidized-endlessh
-          }/bin/oxidized-endlessh -f /etc/oxidized-endlessh/settings.json";
+        ExecStart =
+          "${pkgs.oxidized-endlessh}/bin/oxidized-endlessh -f ${settings}/oxidized-endlessh/settings.json";
         Restart = "on-failure";
         RestartSec = "5s";
       };
-      environment.etc."oxidized-endlessh/settings.json".text =
-        builtins.toJSON (cfg.opts);
     };
-
   };
 }

@@ -2,28 +2,36 @@
   inputs = {
     utils.url = "github:numtide/flake-utils";
     naersk.url = "github:nix-community/naersk";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs, utils, naersk }:
-    utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages."${system}";
-        naersk-lib = naersk.lib."${system}";
-      in rec {
-        # `nix build`
-        packages.oxidized-endlessh = naersk-lib.buildPackage {
-          pname = "oxidized-endlessh";
-          root = ./.;
-        };
-        # defaultPackage = packages.oxidized-endlessh;
+  outputs = { self, ... }@inputs:
+    with inputs;
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages."${system}";
+      naersk-lib = naersk.lib."${system}";
+    in rec {
+      # `nix build`
+      packages.oxidized-endlessh =
+        (pkgs.callPackage ./default.nix { inherit naersk-lib; });
 
-        # `nix run`
-        # apps.oxidized-endlessh =
-        #   utils.lib.mkApp { drv = packages.oxidized-endlessh; };
-        # defaultApp = apps.oxidized-endlessh;
+      overlay = final: prev: {
+        oxidized-endlessh =
+          (prev.callPackage ./default.nix { inherit naersk-lib; });
+      };
 
-        # `nix develop`
-        # devShell =
-        #   pkgs.mkShell { nativeBuildInputs = with pkgs; [ rustc cargo ]; };
-      });
+      defaultPackage."${system}" = packages.oxidized-endlessh;
+
+      nixosModules = { oxidized-endlessh = import ./module.nix; };
+
+      # `nix run`
+      apps.oxidized-endlessh =
+        utils.lib.mkApp { drv = packages.oxidized-endlessh; };
+      defaultApp = apps.oxidized-endlessh;
+
+      # `nix develop`
+      # devShell =
+      #   pkgs.mkShell { nativeBuildInputs = with pkgs; [ rustc cargo ]; };
+    };
 }

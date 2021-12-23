@@ -51,10 +51,12 @@ OXIDIZED_ENDLESSH_CONFIG
         let listener = TcpListener::bind(addr).await?;
         listeners.push(listener);
     }
+    println!("{}", "here");
 
     loop {
         for listener in &listeners {
-            let (mut socket, _) = listener.accept().await?;
+            let (mut socket, peer_addr) = listener.accept().await?;
+            println!("{}: connected", peer_addr);
             let mut b = ByteBuffer::new();
             tokio::spawn(async move {
                 // In a loop, read data from the socket and write the data back.
@@ -70,6 +72,7 @@ OXIDIZED_ENDLESSH_CONFIG
                         eprintln!("failed to write to socket; err = {:?}", e);
                         return;
                     }
+                    println!("{}: response sent {}", peer_addr, response);
                 }
             });
         }
