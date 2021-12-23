@@ -13,7 +13,7 @@ in {
       addrs = mkOption {
         type = with types; listOf string;
         default = [ "127.0.0.1:2222" ];
-        example = [ "127.0.0.1:2222" ];
+        example = [ "0.0.0.0:2222" ];
         description = "Host to listen on";
       };
     };
