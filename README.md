@@ -9,7 +9,9 @@ more comfortable with nix flakes and packaging a nix module outside nixpkgs itse
 this package is used on my server, pickard.cc, you can ssh to `ssh pickard.cc -p 2222` to get stuck in the
 tar pit yourself. See the [repo for pickard.cc](https://github.com/chrispickard/pickard.cc) for a demonstration on how
 to use an external module with nixos. The tl;dr is to make sure your downstream flake has both the 
-`oxidized-endlessh.overlay` in its nixpkgs overlays and that it is set as a module in the `nixosConfiguration`.
+`oxidized-endlessh.overlay` in its nixpkgs overlays and that it is set as a module in the `nixosConfiguration`. Then
+you can configure the module like any other in your `configuration.nix`
+
 something like
 
 ```
